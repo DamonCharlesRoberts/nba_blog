@@ -2,7 +2,10 @@
 
 ```{python}
 #| label: setup
+# importing some helpful dataframe and sql libraries
 import pandas as pd
+import duckdb as db
+# importing the nba_api
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import playercareerstats
 from nba_api.stats.endpoints import playergamelog
@@ -22,9 +25,15 @@ seasons_list = seasons_df['SEASON_ID'].tolist()
 ```
 
 ```{python}
-#| label: cleaning-data
+#| label: putting-data-in-df
 # Jokic stats
 stats_list = [playergamelog.PlayerGameLog(player_id=jokic_id, season=x).get_data_frames()[0] for x in seasons_list]
 jokic_stats_df = pd.concat(stats_list)
 jokic_stats_df
+```
+
+```{python}
+#| label: cleaning-data
+
+# Need to clean the GAME_DATE column
 ```
