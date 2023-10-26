@@ -1,0 +1,30 @@
+# Nikola Jokic Triple-Double tracker: 2023-2024 season
+
+```{python}
+#| label: setup
+import pandas as pd
+from nba_api.stats.static import players
+from nba_api.stats.endpoints import playercareerstats
+from nba_api.stats.endpoints import playergamelog
+```
+
+```{python}
+#| label: getting-data
+# Get Jokic player ID
+jokic_id = players.find_players_by_last_name('Jokic')[0]['id']
+
+# Get Jokic seasons
+seasons_df = playercareerstats.PlayerCareerStats(
+    player_id=jokic_id
+).get_data_frames()[0]
+seasons_list = seasons_df['SEASON_ID'].tolist()
+
+```
+
+```{python}
+#| label: cleaning-data
+# Jokic stats
+stats_list = [playergamelog.PlayerGameLog(player_id=jokic_id, season=x).get_data_frames()[0] for x in seasons_list]
+jokic_stats_df = pd.concat(stats_list)
+jokic_stats_df
+```
