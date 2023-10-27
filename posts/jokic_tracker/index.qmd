@@ -23,6 +23,7 @@ Let's see how Jokić is doing
 import pandas as pd
 import duckdb as db
 import plotly.express as px
+import plotly.graph_objects as go
 # importing the nba_api
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import playercareerstats
@@ -155,5 +156,6 @@ fig = px.line(
     },
     template='plotly_dark'
     )
-fig.show(renderer='iframe_connected')
+figure = go.FigureWidget(fig)
+figure
 ```
