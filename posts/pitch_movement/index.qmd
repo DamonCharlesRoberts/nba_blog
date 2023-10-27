@@ -12,6 +12,7 @@ execute:
     message: false
     warning: false
     echo: false
+    freeze: true
 ---
 
 ```{python}
