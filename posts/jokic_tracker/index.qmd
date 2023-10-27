@@ -33,11 +33,12 @@ from nba_api.stats.static import players
 from nba_api.stats.endpoints import playercareerstats
 from nba_api.stats.endpoints import playergamelog
 # setting up in-memory duckdb connection
-conn = db.connect(':memory:')
+conn = db.connect('../../data/triple-double-tracker.db')
 ```
 
 ```{python}
 #| label: getting-data
+#| eval: false
 # Get Jokic player ID
 jokic_id = players.find_players_by_last_name('Jokic')[0]['id']
 
@@ -51,20 +52,24 @@ seasons_list = seasons_df['SEASON_ID'].tolist()
 
 ```{python}
 #| label: putting-data-in-df
+#| eval: false
 # Jokic stats
 stats_list = [playergamelog.PlayerGameLog(player_id=jokic_id, season=x).get_data_frames()[0] for x in seasons_list]
 jokic_stats_df = pd.concat(stats_list)
 ```
 
 ```{python}
-#| label: cleaning-data
-
-# Create a table with the dataframe
+#| label: create database table
+#| eval: false
 conn.execute(
     '''
     CREATE OR REPLACE TABLE main AS SELECT * FROM jokic_stats_df
     '''
 )
+```
+
+```{python}
+#| label: cleaning-data
 
 # Clean SEASON_ID column
 
