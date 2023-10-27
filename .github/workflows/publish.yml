@@ -43,4 +43,5 @@ jobs:
         id: activate-poetry
         run: source .venv/bin/activate
       - name: Render
-        uses: render-project
+        id: render-project
+        uses: quarto-dev/quarto-actions/render@v2
