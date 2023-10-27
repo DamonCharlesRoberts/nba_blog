@@ -3,7 +3,7 @@ title: "Nikola Jokić Triple-Double tracker: 2023-2024 season"
 code-tools: true
 code-line-numbers: true
 execute:
-    echo: false
+  echo: false
 ---
 
 Jokić had an insane season in 2022. Despite that, he didn't win the league MVP. Looking at the number of triple doubles that he had in 2022 relative to 2020 and 2021 -- the two years he did win the league MVP, it was clear that he was on another level. For much of the 2022 season, his AVERAGE Points Per Game, Assists Per Game, and Rebounds Per Game was a triple double.
@@ -144,7 +144,7 @@ check_df = conn.sql(
 
 ```{python}
 #| label: fig-triple-double-tracker
-#| fig-cap: Jokic's Running Count of Triple-Doubles
+#| fig-cap: "Jokić Running Count of Triple-Doubles"
 fig = px.line(
     analyzable_df, 
     x='game_number', y='running_total', color='season',
@@ -160,5 +160,4 @@ fig = px.line(
 
 # Show the plot
 fig.show()
-
 ```
