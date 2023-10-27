@@ -8,7 +8,7 @@ To do this, I access the `nba_api` library in `Python`. I have a script that run
 
 More specifically, this blog post is part of a `Quarto` blog that I have publish through a Github action and updates through Netlify. Each day, I have a Github action re-run this document.
 
-Let's see how Jokić is doing.
+Let's see how Jokić is doing
 
 
 ```{python}
