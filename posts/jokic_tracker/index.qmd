@@ -157,6 +157,5 @@ fig = px.line(
     }
     #template='plotly_dark'
     )
-# Show the plot
 fig.show()
 ```
