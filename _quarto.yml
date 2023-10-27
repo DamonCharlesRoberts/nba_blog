@@ -21,5 +21,3 @@ format:
     code-copy: true
     code-overflow: wrap
     smooth-scroll: true 
-execute:
-  freeze: false
