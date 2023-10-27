@@ -4,6 +4,9 @@ code-tools: true
 code-line-numbers: true
 execute:
   echo: false
+date: 10/27/2023
+categories:
+  - basketball
 ---
 
 Jokić had an insane season in 2022. Despite that, he didn't win the league MVP. Looking at the number of triple doubles that he had in 2022 relative to 2020 and 2021 -- the two years he did win the league MVP, it was clear that he was on another level. For much of the 2022 season, his AVERAGE Points Per Game, Assists Per Game, and Rebounds Per Game was a triple double.
@@ -157,7 +160,5 @@ fig = px.line(
     },
     template='plotly_dark'
     )
-fig
-#figure = go.FigureWidget(fig)
-#figure
+fig.show()
 ```
