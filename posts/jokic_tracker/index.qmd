@@ -3,7 +3,6 @@ title: "Nikola Jokić Triple-Double tracker: 2023-2024 season"
 code-tools: true
 code-line-numbers: true
 execute:
-  jupyter: true
   echo: false
 ---
 
@@ -158,8 +157,6 @@ fig = px.line(
     },
     template='plotly_dark'
     )
-
-fig.update_layout(hovermode=False)
 # Show the plot
 fig.show()
 ```
