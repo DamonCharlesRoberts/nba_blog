@@ -31,7 +31,7 @@ jobs:
           virtualenvs-in-project: true
           installer-parallel: true
       - name: Install project
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --no-root
       - name: Activate poetry shell
         id: activate-poetry
         run: source .venv/bin/activate
