@@ -2,7 +2,7 @@ project:
   type: website
 
 website:
-  title: "Nba_blog"
+  title: "Damon's Sports Analytics Blog"
   navbar:
     right:
       - about.qmd
@@ -11,10 +11,15 @@ website:
       - icon: twitter
         href: https://twitter.com
   margin-header: subscribe.html
+  page-footer:
+    center: |
+      <span class="faux-block">{{< fa brands creative-commons >}} 2021-2023 Damon Charles Roberts</span>
+      <span class="faux-block"><br>All content licensed under {{< fa brands creative-commons >}} {{< fa brands creative-commons-by >}} {{< fa brands creative-commons-sa >}} [Creative Commons CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)</span>
+
 format:
   html:
-    theme: cosmo
+    theme: ./assets/custom.css
     css: styles.css
-
-
-
+    code-copy: true
+    code-overflow: wrap
+    smooth-scroll: true 
