@@ -155,5 +155,5 @@ fig = px.line(
     },
     template='plotly_dark'
     )
-fig.show(renderer='iframe_connected')
+fig.show(renderer="notebook")
 ```
