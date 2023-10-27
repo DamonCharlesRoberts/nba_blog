@@ -157,8 +157,7 @@ fig = px.line(
     },
     template='plotly_dark'
     )
-fig.write_json('./plot.json')
-pio.read_json('./plot.json')
+fig.show(renderer='plotly_mimetype')
 #figure = go.FigureWidget(fig)
 #figure
 ```
