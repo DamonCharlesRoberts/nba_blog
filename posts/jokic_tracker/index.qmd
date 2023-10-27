@@ -157,7 +157,5 @@ fig = px.line(
     },
     template='plotly_dark'
     )
-fig
-#figure = go.FigureWidget(fig)
-#figure
+fig.show()
 ```
