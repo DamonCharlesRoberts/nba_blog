@@ -8,6 +8,7 @@ website:
       - about.qmd
       - icon: github
         href: https://github.com/damoncharlesroberts
+  margin-header: subscribe.html
   page-footer:
     center: |
       <span class="faux-block">{{< fa brands creative-commons >}} 2021-2023 Damon Charles Roberts</span>
