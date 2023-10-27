@@ -42,8 +42,6 @@ jobs:
       - name: Activate poetry shell
         id: activate-poetry
         run: source .venv/bin/activate
-      - name: Render Quarto Project
-        uses: quarto-dev/quarto-actions/render@v2
       - name: Publish to netlify
         uses: quarto-dev/quarto-actions/publish@v2
         with:
