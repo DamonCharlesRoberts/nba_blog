@@ -40,7 +40,7 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --no-root
       - name: Install project
-        run: poetry install
+        run: poetry install --no-interaction --no-root
       - name: Activate poetry shell
         id: activate-poetry
         run: source .venv/bin/activate
