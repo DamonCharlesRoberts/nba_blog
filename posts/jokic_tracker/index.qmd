@@ -144,8 +144,6 @@ check_df = conn.sql(
 ```{python}
 #| label: fig-triple-double-tracker
 #| fig-cap: Triple Double
-import plotly.io as pio
-pio.renderers.default = "plotly_mimetype+notebook"
 fig = px.line(
     analyzable_df, 
     x='game_number', y='running_total', color='season',
