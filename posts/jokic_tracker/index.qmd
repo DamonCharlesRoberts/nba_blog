@@ -1,14 +1,28 @@
-# Nikola Jokic Triple-Double tracker: 2023-2024 season
+# Nikola Jokić Triple-Double tracker: 2023-2024 season
+
+Jokić had an insane season in 2022. Despite that, he didn't win the league MVP. Looking at the number of triple doubles that he had in 2022 relative to 2020 and 2021 -- the two years he did win the league MVP, it was clear that he was on another level. For much of the 2022 season, his AVERAGE Points Per Game, Assists Per Game, and Rebounds Per Game was a triple double.
+
+With the new NBA season starting up and Jokić looking to defend the Denver Nuggets' title, I want to follow along throughout the season to see how that triple-double machine does this season.
+
+To do this, I access the `nba_api` library in `Python`. I have a script that runs daily to update the dataset and the corresponding plot below so that I can check to see whether the Nuggets played that day and whether Jokić had a triple-double in that game.
+
+More specifically, this blog post is part of a `Quarto` blog that I have publish through a Github action and updates through Netlify. Each day, I have a Github action re-run this document.
+
+Let's see how Jokić is doing.
+
 
 ```{python}
 #| label: setup
 # importing some helpful dataframe and sql libraries
 import pandas as pd
 import duckdb as db
+import plotly.express as px
 # importing the nba_api
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import playercareerstats
 from nba_api.stats.endpoints import playergamelog
+# setting up in-memory duckdb connection
+conn = db.connect(':memory:')
 ```
 
 ```{python}
@@ -35,5 +49,110 @@ jokic_stats_df
 ```{python}
 #| label: cleaning-data
 
-# Need to clean the GAME_DATE column
+# Create a table with the dataframe
+conn.execute(
+    '''
+    CREATE OR REPLACE TABLE main AS SELECT * FROM jokic_stats_df
+    '''
+)
+
+# Clean SEASON_ID column
+
+clean_df = conn.sql(
+    '''
+    SELECT
+        RIGHT(SEASON_ID, 4) AS season,
+        (
+            CASE 
+                WHEN
+                    CAST(
+                        SPLIT_PART(
+                            strftime(
+                                strptime(GAME_DATE, '%b %d, %Y')
+                                , '%m/%d'
+                            ), '/', 1
+                        ) AS int    
+                    ) < 10
+                THEN 
+                    CAST(
+                        SPLIT_PART(
+                            strftime(
+                                strptime(GAME_DATE, '%b %d, %Y')
+                            , '%m/%d'
+                            ), '/', 1
+                        ) AS int    
+                    ) + 12
+                ELSE
+                    CAST(
+                        SPLIT_PART(
+                            strftime(
+                                strptime(GAME_DATE, '%b %d, %Y')
+                            , '%m/%d'
+                            ), '/', 1
+                        ) AS int
+                    )
+            END
+        ) AS game_month,
+        SPLIT_PART(strftime(strptime(GAME_DATE, '%b %d, %Y'), '%m/%d'), '/', 2) AS
+        game_day,
+        strftime(strptime(GAME_DATE, '%b %d, %Y'), '%m/%d') AS game_date,
+        (
+            CASE 
+                WHEN PTS >= 10 AND AST >= 10 AND REB >= 10 
+                    THEN 1 
+                ELSE 0 
+            END
+        ) AS triple_double
+    FROM
+        main;
+    '''
+).fetchdf()
+
+analyzable_df = conn.sql(
+    '''
+    SELECT
+        season,
+        game_date,
+        SUM(triple_double) OVER (PARTITION BY season ORDER BY game_month, game_day) AS running_total,
+        COUNT(game_date) OVER (PARTITION BY season ORDER BY game_month, game_day) AS game_number
+    FROM
+        clean_df
+    '''
+).fetchdf()
+
+check_df = conn.sql(
+    '''
+    SELECT
+        season,
+        MAX(running_total),
+        MAX(game_number)
+    FROM
+        analyzable_df
+    GROUP BY
+        season
+    ORDER BY
+        season DESC
+    '''
+)
+```
+
+```{python}
+#| label: fig-triple-double-tracker
+
+fig = px.line(
+    analyzable_df, 
+    x='game_number', y='running_total', color='season',
+    labels=dict(
+        game_number='# of Games Played', running_total='Running total of Triple-Doubles',season='Season'
+        ),
+    category_orders={
+        'season': ['2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015']
+    },
+    template='plotly_dark'
+    )
+
+
+# Show the plot
+fig.show()
+
 ```
