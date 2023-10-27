@@ -1,7 +1,7 @@
 on:
     workflow_dispatch:
     push:
-      branches: dcr-1
+      branches: main
     schedule:
       - cron: '0 0 * * *'
 
