@@ -3,6 +3,7 @@ title: "Nikola Jokić Triple-Double tracker: 2023-2024 season"
 code-tools: true
 code-line-numbers: true
 execute:
+  jupyter: true
   echo: false
 ---
 
@@ -23,6 +24,8 @@ Let's see how Jokić is doing
 import pandas as pd
 import duckdb as db
 import plotly.express as px
+import plotly.io as pio
+pio.renderers.default = "notebook"
 # importing the nba_api
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import playercareerstats
@@ -49,7 +52,6 @@ seasons_list = seasons_df['SEASON_ID'].tolist()
 # Jokic stats
 stats_list = [playergamelog.PlayerGameLog(player_id=jokic_id, season=x).get_data_frames()[0] for x in seasons_list]
 jokic_stats_df = pd.concat(stats_list)
-jokic_stats_df
 ```
 
 ```{python}
@@ -144,7 +146,7 @@ check_df = conn.sql(
 
 ```{python}
 #| label: fig-triple-double-tracker
-#| fig-cap: "Jokić Running Count of Triple-Doubles"
+#| fig-cap: Triple Double
 fig = px.line(
     analyzable_df, 
     x='game_number', y='running_total', color='season',
@@ -157,7 +159,7 @@ fig = px.line(
     template='plotly_dark'
     )
 
-
+fig.update_layout(hovermode=False)
 # Show the plot
 fig.show()
 ```

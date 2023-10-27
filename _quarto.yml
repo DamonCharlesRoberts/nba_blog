@@ -18,6 +18,7 @@ website:
 
 format:
   html:
+    #theme: cosmo
     theme: ./assets/custom.css
     css: styles.css
     code-copy: true
