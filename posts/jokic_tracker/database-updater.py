@@ -3,15 +3,12 @@
 # importing some helpful dataframe and sql libraries
 import pandas as pd
 import duckdb as db
-import plotly.express as px
-import plotly.io as pio
-#import plotly.graph_objects as go
 # importing the nba_api
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import playercareerstats
 from nba_api.stats.endpoints import playergamelog
 # setting up in-memory duckdb connection
-conn = db.connect('../../data/triple-double-tracker.db')
+conn = db.connect('./data/triple-double-tracker.db')
 
 # Get Jokic player ID
 jokic_id = players.find_players_by_last_name('Jokic')[0]['id']
@@ -35,3 +32,6 @@ conn.execute(
 
 # close the connection
 conn.close()
+
+# Print
+print("Database updated")
