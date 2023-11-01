@@ -393,6 +393,28 @@ files = [
 ]
 
 [[package]]
+name = "cmdstanpy"
+version = "1.2.0"
+description = "Python interface to CmdStan"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "cmdstanpy-1.2.0-py3-none-any.whl", hash = "sha256:bbfe7b5fd64be0f559ca6496c3302b696497c1477dd73f106c1c601ea7e0550d"},
+    {file = "cmdstanpy-1.2.0.tar.gz", hash = "sha256:bdf55ab76f9eea01763b8990a56ff55d03e69ec31d9613fdbbe4c452126ff1bb"},
+]
+
+[package.dependencies]
+numpy = ">=1.21"
+pandas = "*"
+stanio = ">=0.3.0,<0.4.0"
+tqdm = "*"
+
+[package.extras]
+all = ["xarray"]
+docs = ["matplotlib", "numpydoc", "sphinx", "sphinx-gallery", "sphinx-rtd-theme"]
+tests = ["flake8", "mypy", "pylint", "pytest", "pytest-cov", "pytest-order", "tqdm", "xarray"]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 description = "Cross-platform colored terminal text."
@@ -2939,6 +2961,23 @@ pure-eval = "*"
 tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
+name = "stanio"
+version = "0.3.0"
+description = ""
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "stanio-0.3.0-py3-none-any.whl", hash = "sha256:2d34b5ebe9ad8fcd137437209bf4b53846d88dbe933441aca5d83fd32f9b0c7e"},
+    {file = "stanio-0.3.0.tar.gz", hash = "sha256:0c504ae671b8d526a1da71185ac02a2775508ffe6d3db91f242eac85bcf6046f"},
+]
+
+[package.dependencies]
+numpy = "*"
+
+[package.extras]
+test = ["pandas", "pytest", "pytest-cov"]
+
+[[package]]
 name = "tenacity"
 version = "8.2.3"
 description = "Retry code until it succeeds"
@@ -3260,4 +3299,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "03dcdd705985f41a8357790df0c72defc68b1ddfb68b720e5047aa0bfa6ee75b"
+content-hash = "c531a0d253e5fd5ce4d8c242e0ce7a3969aa703cc7644e3efb1021345d1696dc"
