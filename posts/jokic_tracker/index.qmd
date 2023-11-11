@@ -81,82 +81,21 @@ conn.execute(
 
 # Clean SEASON_ID column
 
-clean_df = conn.sql(
-    '''
-    SELECT
-        RIGHT(SEASON_ID, 4) AS season,
-        (
-            CASE 
-                WHEN
-                    CAST(
-                        SPLIT_PART(
-                            strftime(
-                                strptime(GAME_DATE, '%b %d, %Y')
-                                , '%m/%d'
-                            ), '/', 1
-                        ) AS int    
-                    ) < 10
-                THEN 
-                    CAST(
-                        SPLIT_PART(
-                            strftime(
-                                strptime(GAME_DATE, '%b %d, %Y')
-                            , '%m/%d'
-                            ), '/', 1
-                        ) AS int    
-                    ) + 12
-                ELSE
-                    CAST(
-                        SPLIT_PART(
-                            strftime(
-                                strptime(GAME_DATE, '%b %d, %Y')
-                            , '%m/%d'
-                            ), '/', 1
-                        ) AS int
-                    )
-            END
-        ) AS game_month,
-        SPLIT_PART(strftime(strptime(GAME_DATE, '%b %d, %Y'), '%m/%d'), '/', 2) AS
-        game_day,
-        strftime(strptime(GAME_DATE, '%b %d, %Y'), '%m/%d') AS game_date,
-        (
-            CASE 
-                WHEN PTS >= 10 AND AST >= 10 AND REB >= 10 
-                    THEN 1 
-                ELSE 0 
-            END
-        ) AS triple_double
-    FROM
-        main;
-    '''
-).fetchdf()
-
 analyzable_df = conn.sql(
     '''
     SELECT
-        season,
-        game_date,
-        SUM(triple_double) OVER (PARTITION BY season ORDER BY game_month, game_day) AS running_total,
-        COUNT(game_date) OVER (PARTITION BY season ORDER BY game_month, game_day) AS game_number
+        Season,
+        (
+            CONCAT(GameMonth, '/', GameDay)
+        ) AS GameDate,
+        (
+            SUM(TripleDouble) OVER (PARTITION BY Season ORDER BY GameMonth, GameDay)
+        ) AS RunningTotal,
+        COUNT(GameDate) OVER (PARTITION BY Season ORDER BY GameMonth, GameDay) AS GameNumber
     FROM
-        clean_df
+        main
     '''
 ).fetchdf()
-
-check_df = conn.sql(
-    '''
-    SELECT
-        season,
-        MAX(running_total),
-        MAX(game_number)
-    FROM
-        analyzable_df
-    GROUP BY
-        season
-    ORDER BY
-        season DESC
-    '''
-)
 ```
 
 ```{python}
@@ -164,12 +103,12 @@ check_df = conn.sql(
 #| fig-cap: Triple Double
 fig = px.line(
     analyzable_df, 
-    x='game_number', y='running_total', color='season',
+    x='GameNumber', y='RunningTotal', color='Season',
     labels=dict(
         game_number='# of Games Played', running_total='Running total of Triple-Doubles',season='Season'
         ),
     category_orders={
-        'season': ['2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015']
+        'Season': ['2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015']
     },
     template='plotly_dark'
     )
