@@ -1,0 +1,30 @@
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  push:
+    branches:
+      - 'main'
+
+name: Quarto Publish
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4 
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install jupyter
+        run: pip install jupyter
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Publish to netlify
+        uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: netlify
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
