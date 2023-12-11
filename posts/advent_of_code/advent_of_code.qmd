@@ -1,0 +1,16 @@
+---
+title: "Advent of Code"
+date: 12/04/2022
+categories:
+    - code
+draft: false
+engine: rmarkdown
+execute:
+    message: false
+    warning: false
+    echo: false
+---
+
+I would not classify myself as a wonderful coder, but I'll give it a go. 2021 was attrocious and I did not really come up with a single document to show my answers. But here's post-2022 attempts!
+
+- [Answers for Advent of Code 2022](https://htmlpreview.github.io/?https://github.com/DamonCharlesRoberts/advent_of_code/blob/main/advent_2022/code/dcr_aoc.html)

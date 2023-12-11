@@ -1,0 +1,399 @@
+---
+title: "Style guide for collaboration"
+date: 06/31/2023
+categories:
+  - code
+draft: false
+format:
+    html:
+        embed-resources: true
+link-citations: true
+---
+
+## Why do I have this?
+
+Efficiency and reproducibility is the name of the game!
+
+Projects that have a set standard can be more efficient meaning that we can get through the drafting and onto publication submission quicker. It also allows us to have a common structure, thereby a common language, to follow which can help reduce the amount of time any of us spend trying to find or understand what the other person had done. For external viewers of the project, having a standard flow and set of practices allow us to better document the project as well.
+
+## So what does this cover?
+
+
+I am concerned about efficiency and reproducibility not just at the project level, but also at the document level. For any executable documents we use containing code, I want that code to be optimized so that it is also efficient and reproducible. I've done quite a bit of heavy lifting in terms of learning about fundamental computer science practices, about open science, and about style guidelines like PEP8 and TidyR. So that you don't have to do the heavy lifting on all of this, I'll document a lot of the key things here. This will let you read and understand my code without you having to do a lot of googling to understand what I was doing (hopefully 😊).
+
+## File structure
+
+``` markdown
+|-- .
+|   |-- assets
+|   |   |-- references.bib
+|   |-- data
+|   |   |-- original
+|   |   |-- cleaned
+|   |   |-- temp
+|   |-- out
+|   |   |-- manuscript.pdf
+|   |-- renv
+|   |-- src
+|   |   |-- manuscript.qmd
+|   |   |-- R
+|   |   |   |-- function.R
+|   |-- tests
+|   |   |-- R
+|   |   |   |-- test_function.R
+|   |-- .gitattributes
+|   |-- .gitignore
+|   |-- .RProfile
+|   |-- LICENSE.md
+|   |-- README.md
+|   |__ renv.lock
+```
+-   `.` is the the `root` or main folder for the project.
+-   `assets/` contains any files that are tangentially used. This includes things like `.bib` files.
+-   `data/` contains any data for the project.
+    -   `original` a folder containing the original data.
+    -   `cleaned` a folder containing cleaned data.
+    -   `temp` a folder containing any stored `RData` or `RDS` objects. Basically anything that is temporary data such as environment data or something else.
+-   `out/` contains output files generated from the `src` folder. This includes the `.pdf` document for the manuscript.
+-   `renv/` contains the R package library and the R environment used for the project.
+-   `src/` contains all code for the project. Including the code used to generate the PDF of the manuscript.
+    -   `R/` contains any custom functions used for the project. Each function should be defined in its separate `.R` file. The exception to this is if there is a function used by only one other larger function -- those can be stored in the same file.
+-   `tests/` contains all unit tests for the functions used. Unit tests are essentially just ways to ensure that the result of some function is what you'd expect by using a simple test case. To do this, I often rely on the `testthat` package in R.
+-   `.gitattributes` a github file used to specify what languages I want detected on the github repo's language profile
+-   `.gitignore` a github file used to specify what files or directories that should not be versioned controlled. This should ideally be as few as possible.
+-   `.Rprofile` automatically activates the `renv` when I open a terminal in `.` or its subdirectories.
+-   `LICENSE.md` is the licensing information for the project. Standard is to go with some version of creative commons.
+-   `README.md` is the landing page that people go to and can find out more details on the project. Should link them to a Wiki for the repository on Github giving deeper details about the project and how to navigate it.
+-   `renv.lock` is a lock file that people can use to download all R packages used in the projects and their dependencies. It also should keep track of all package and dependency versions to maximize reproducibility of the code in the project.
+
+## R Code
+
+- Use spaces, not tabs. Not 4 spaces like in Python, but 2 spaces. R and Python are not the same language, do not try to get them to act as such.
+- I often treat comments as bulleted lists where each `*` reflects going further down in the list.
+
+::: panel-tabset
+## NO!
+
+``` r
+# Comment
+# Nested Comment
+# Even more nested comment
+# Extremely nested comment
+```
+
+## YES!
+
+``` r
+# High level comment
+  #* Nested comment
+    #** even more nested comment
+      #*** extremely nested comment
+```
+:::
+
+-   There should be a header or a preamble to every code script (except function scripts where you should follow standard conventions on that detailed by `roxygen2` -- see below on discussion of functions for an example).
+
+::: panel-tabset
+## NO!
+
+``` {.r code-line-numbers="true"}
+library(tidyverse)
+```
+
+## YES!
+
+``` {.r code-line-numbers="true"}
+# Title: File name
+
+# Notes:
+  #* Description
+    #** Description of project
+  #* Updated:
+    #** Date file was updated
+    #** Who updated the file
+```
+:::
+
+-   Ideally every line should have a comment explaining what that line does.
+
+::: panel-tabset
+## NO!
+
+``` r
+2 + 2
+```
+
+## YES!
+
+``` r
+2 + 2 # adds 2 and 2 together
+```
+:::
+
+-   All functions should be modularly loaded rather than lazy loaded
+
+::: panel-tabset
+## NO!
+
+``` r
+library(utils) # load the read.csv function from utils
+```
+
+## YES!
+
+``` r
+box::use(
+    utils[read.csv] # load the read.csv function from utils
+)
+```
+:::
+
+-   Specify arguments to functions by argument name
+
+::: panel-tabset
+## NO!
+
+``` r
+data_frame <- read.csv(
+    "my_file.csv" # load my_file.csv
+) # store it in data_frame
+```
+
+## YES!
+
+``` r
+data_frame <- read.csv(
+    file = "my_file.csv" # load my_file.csv
+) # store it in data_frame
+```
+:::
+
+-   Don't make your code too long (more than 80 characters)! Feel free to break it up into multiple lines!
+
+::: panel-tabset
+## NO!
+
+``` r
+data_frame <- read.csv(file = "my_file.csv") # load my_file.csv, store it in data_frame
+```
+
+## YES!
+
+``` r
+data_frame <- read.csv(
+    file = "my_file.csv" # load my_file.csv
+) # store it in data_frame
+```
+:::
+
+-   When you do break it up in multiple lines, and if you specify multiple options, no problem with putting the comma first rather than at the end.
+
+::: panel-tabset
+## NO!
+
+``` r
+data_frame <- read.csv(
+    file = "my_file.csv", # load my_file.csv
+    ... # specify other options
+) # store it in data_frame
+```
+
+## YES!
+
+``` r
+data_frame <- read.csv(
+    file = "my_file.csv" # load my_file.csv
+    , ... # specify other options
+) # store it in data_frame
+```
+:::
+
+-   Function and object names should use snake_case, not camelCase
+
+::: panel-tabset
+## NO!
+
+``` r
+dataFrame <- read.csv(
+    file = "my_file.csv"
+) # store it in dataFrame
+```
+
+## YES!
+
+``` r
+data_frame <- read.csv(
+    file = "my_file.csv"
+) # store it in data_frame
+```
+:::
+
+-   Do not repeat yourself, write a function!
+    -   Also, don't write for loops, use the `apply()` method instead!
+    -   Put all functions in the `src/R` subdirectory with their own `.R` file using the name of the function.
+
+::: panel-tabset
+## NO!
+
+``` {.r filename="./src/manuscript.qmd"}
+file1 <- read_pdf(
+    "../data/pdf1.pdf"
+)
+
+file2 <- read_pdf(
+    "../data/pdf2.pdf"
+)
+```
+
+## YES!
+
+``` {.r filename="./src/R/my_function.R"}
+'.__module__.'
+#' @title load multiple pdf documents
+#' 
+#' @description
+#' This is a function that takes a string specifying a folder to find
+#' pdf files in to then load those pdf documents and to then store
+#' the contents of those pdfs in a list object. Each list element
+#' contains the contents of a single pdf document.
+#' 
+#' @details
+#' The folder argument for the function should be given as a string.
+#' This means that you should type the name of the folder you want to 
+#' examine inside quotation marks. 
+#' 
+#' @param folder A string specifying a folder containing the pdf files to load.
+#' @returns rawList A list containing the loaded pdf documents
+#' @examples
+#' my_list <- my_function(
+#'   folder = "."
+#' )
+#' my_list <- my_function(
+#'   folder = "./pdf_documents"
+#' )
+my_function <- function (folder) {
+    # Construct a file path
+    filePath <- paste(
+        folder
+        , sep = ""
+    )
+    # Construct a vector of file names
+    fileVector <- list.files(
+        filePath
+        , full.names = TRUE
+    )
+    # Load the pdf files by applying read_pdf to all files in fileVector
+    rawList <- lapply(
+        fileVector
+        , pdf_text
+    )
+    # Return list of pdf contents
+    return(rawList)
+}
+```
+:::
+
+- Do not use R's implicit return but be explicit about which object any function (in a module or an anonymous funciton) should return.
+-   If you write a function, UNIT TEST IT! Use the testthat package and create a `test_function_name.R` file in the `tests/` folder checking to make sure the function works.
+    -   For example with the function above, I'd have a file in `tests/` called `test_my_function.R`.
+
+::: panel-tabset
+## NO!
+
+-   Ran some examples on it myself and made sure it worked.
+
+## YES!
+
+``` {.r filename="./tests/R/test_my_function.R"}
+# Title: test for my_function
+
+# Notes:
+  #* Description
+    #** testing my_function
+  #* Updated
+    #** 2023-05-31
+    #** dcr
+
+# Setup
+  #** set working directory
+setwd("../src")
+  #** modularly load functions
+box::use(
+  ./R/my_function[
+    my_function
+  ]
+)
+
+# Test for my_function()
+rawList <- my_function(
+  folder = "../data/"
+)
+  #* test that there are two files worth of content in rawList
+testthat(
+  "two files"
+  , {
+    expect_true(
+      length(rawList) == 2
+    )
+  }
+)
+    #* etc....
+```
+:::
+
+Much of the packages in the `Tidyverse` are extremely dependent-laden and, as a result, concern me deeply about their place in R's replication issues as well as how insanely slow they are because of a lot of these dependencies. To fix some of these replication and efficiency issues, we can do things like writing functions, using `map()` and `apply()`, modularly loading functions so we only need what is absolutely necessary for a project, etc. However, this still doesn't fix the fact that `tidyverse` relies on tons of packages under the hood for even some of their simple functions.
+
+This means that, though `Tidyverse` is really popular in R, we should resist that tendency as much as possible to use `base` functions or to use those from packages that are written in C++ and/or Rust. These packages have little to no R dependencies so they are extremely reliable over time as well as having extremely low computational overhead which means they are extremely fast.
+
+-   Rather than use `dplyr` with `tibbles`, use `data.table`. [Here is a whole page](https://atrebas.github.io/post/2019-03-03-datatable-dplyr/) that helps me translate between the two (I started out with `dplyr` and think in terms of those functions available still.)
+
+-   If you download a package that you must use for the project, make sure to update the `renv.lock` file. This allows us to have running documentation of the packages that we used for the project.
+
+``` r
+renv::snapshot()
+```
+
+## Github
+
+-   Setup github on computer (if not already setup) by going to [this page and following the instructions](https://docs.github.com/en/get-started/quickstart/set-up-git). You will want to make sure that you are connecting by HTTPS and not SSH.
+-   Setup the repository on your computer
+    -   Everyone should be listed as collaborators on the project first.
+    -   Then you will want to go to [this page by Github and follow its instructions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository?platform=mac).
+-   Two types of branches
+    -   `main`: For anything that is ready to go and you want to share with me or influence what I am doing. What we should be building upon.
+    -   `draft`: Each of us should have our own draft branch. So there should ideally be two `draft` branches in a project. This is for temporary saves that you want stored in version control, but it may still have bugs, be incomplete, or just not ready for me to work with yet.
+-   To make sure that you are on your `draft` branch
+
+``` bash
+git checkout draft
+```
+
+-   To issue a `commit` (to lock in some changes that you have made)
+
+``` bash
+git add -A
+git commit -a -m "Some detailed comment explaining what changes are included here"
+```
+
+-   To `push` (send) your commits to github. Do this after doing a `commit`
+
+``` bash
+git push
+```
+
+-   To get a `push`ed commit put on the `main` branch.
+    -   Go to the repository page for the project on Github.com
+    -   Go to the `Pull Requests` tab
+    -   Click on New
+    -   Make sure that it says `base:main` and then `compare:draft`. If there is a difference between the two, start a Pull Request. When doing so, make sure that you explain everything that has been changed! Make sure that you explain what you've done to make sure that everything will work and it won't fuck up everything.
+    -   Then submit the pull request.
+    -   I will then approve or reject it.
+    -   I will do the same thing with changes I make. So if I issue a pull request, please approve or reject it so there doesn't become some big ass confusing backlog.
+-   After pull requests have been approved, make sure that you update your draft branch with the main branch so that any additions you make reflect the new state of the project. You can do this by doing:
+
+``` bash
+git checkout main
+git pull
+git checkout draft
+git merge main
+```

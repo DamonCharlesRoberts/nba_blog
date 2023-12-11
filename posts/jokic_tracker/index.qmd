@@ -1,0 +1,116 @@
+---
+title: "Nikola Jokić Triple-Double tracker: 2023-2024 season"
+code-tools: true
+code-line-numbers: true
+execute:
+  echo: false
+date: 10/27/2023
+categories:
+  - basketball
+---
+
+::: {.callout-note style='minimal'}
+
+Unfortunately, I can't have the data truly update on a schedule (every day). Essentially I am a bot using `nba_api` when executing the call via Github. Rather than setting up a Proxy server, I've set up a local database file that I will regularly update. This page should then automatically render once the database has been updated.
+
+My apologies for it not being super automatic. I wish it were. 😔
+
+:::
+
+Jokić had an insane season in 2022. Despite that, he didn't win the league MVP. Looking at the number of triple doubles that he had in 2022 relative to 2020 and 2021 -- the two years he did win the league MVP, it was clear that he was on another level. For much of the 2022 season, his AVERAGE Points Per Game, Assists Per Game, and Rebounds Per Game was a triple double.
+
+With the new NBA season starting up and Jokić looking to defend the Denver Nuggets' title, I want to follow along throughout the season to see how that triple-double machine does this season.
+
+To do this, I access the `nba_api` library in `Python`. I have a script that runs daily to update the dataset and the corresponding plot below so that I can check to see whether the Nuggets played that day and whether Jokić had a triple-double in that game.
+
+More specifically, this blog post is part of a `Quarto` blog that I have publish through a Github action and updates through Netlify. Each day, I have a Github action re-run this document.
+
+Let's see how Jokić is doing
+
+
+```{python}
+#| label: setup
+# importing some helpful dataframe and sql libraries
+import pandas as pd
+import duckdb as db
+import plotly.express as px
+import plotly.io as pio
+#import plotly.graph_objects as go
+# importing the nba_api
+from nba_api.stats.static import players
+from nba_api.stats.endpoints import playercareerstats
+from nba_api.stats.endpoints import playergamelog
+# setting up in-memory duckdb connection
+conn = db.connect('../../data/triple-double-tracker.db')
+```
+
+```{python}
+#| label: getting-data
+#| eval: false
+# Get Jokic player ID
+jokic_id = players.find_players_by_last_name('Jokic')[0]['id']
+
+# Get Jokic seasons
+seasons_df = playercareerstats.PlayerCareerStats(
+    player_id=jokic_id
+).get_data_frames()[0]
+seasons_list = seasons_df['SEASON_ID'].tolist()
+
+```
+
+```{python}
+#| label: putting-data-in-df
+#| eval: false
+# Jokic stats
+stats_list = [playergamelog.PlayerGameLog(player_id=jokic_id, season=x).get_data_frames()[0] for x in seasons_list]
+jokic_stats_df = pd.concat(stats_list)
+```
+
+```{python}
+#| label: create database table
+#| eval: false
+conn.execute(
+    '''
+    CREATE OR REPLACE TABLE main AS SELECT * FROM jokic_stats_df
+    '''
+)
+```
+
+```{python}
+#| label: cleaning-data
+
+# Clean SEASON_ID column
+
+analyzable_df = conn.sql(
+    '''
+    SELECT
+        Season,
+        (
+            CONCAT(GameMonth, '/', GameDay)
+        ) AS GameDate,
+        (
+            SUM(TripleDouble) OVER (PARTITION BY Season ORDER BY GameMonth, GameDay)
+        ) AS RunningTotal,
+        COUNT(GameDate) OVER (PARTITION BY Season ORDER BY GameMonth, GameDay) AS GameNumber
+    FROM
+        main
+    '''
+).fetchdf()
+```
+
+```{python}
+#| label: fig-triple-double-tracker
+#| fig-cap: Triple Double
+fig = px.line(
+    analyzable_df, 
+    x='GameNumber', y='RunningTotal', color='Season',
+    labels=dict(
+        game_number='# of Games Played', running_total='Running total of Triple-Doubles',season='Season'
+        ),
+    category_orders={
+        'Season': ['2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015']
+    },
+    template='plotly_dark'
+    )
+fig.show()
+```

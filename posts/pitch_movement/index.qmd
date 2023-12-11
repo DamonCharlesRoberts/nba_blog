@@ -1,0 +1,261 @@
+---
+title: "Does pitch movement matter for winning?"
+date: 10/4/2023
+categories:
+    - baseball
+draft: false
+format:
+  html:
+    code-tools: true
+execute:
+    message: false
+    warning: false
+    echo: false
+    freeze: true
+---
+
+```{python}
+#| label: setup-block
+
+# Import important libraries
+import pybaseball as pb
+import polars as pl
+import plotly.express as px
+
+# enable caching of queries
+pb.cache.enable()
+
+```
+
+```{python}
+#| label: pull-data
+
+pdf = pb.statcast(start_dt = "2023-03-30", end_dt = "2023-10-02", parallel = True)
+
+df_simple = pl.from_pandas(pdf)
+
+list_ids = df_simple.select(pl.col("pitcher")).to_series().to_list()
+
+pdf_names = pb.playerid_reverse_lookup(list_ids)
+
+df_names = pl.from_pandas(pdf_names)
+
+df = df_simple.join(df_names, how = "inner", left_on="pitcher", right_on = "key_mlbam").filter(pl.count("pitcher").over("pitcher") > 100)
+```
+
+As the MLB's post-season is getting into full-swing, I thought I'd take a look at pitching. Especially since my favorite team seems to have extremely poor pitching and probably isn't in the playoffs due to their lack of bullpen (though their offense has been pretty abysmal too). Let me look at what I wish I could have.
+
+There are a lot of different ways in which we can try to quantify a pitcher's value to a team and to try to predict what features of a pitcher boost that value. Let me take a peak into one possible thing that may matter: a pitcher's ability to produce a significant amount of controlled movement in their pitch.
+
+While having the ability to rip a 4-seamer across the plate at 100 mph and then follow it up with an 88 mph meatball can definitely produce some K's, they aren't always the safest bet. Fastballs with lots of movement to them and breaking balls are all the [rage in the MLB right now](https://www.mlb.com/news/top-pitches-of-1st-half-2023-season). Pitches producing a lot of movement make it difficult to make contact; and if someone does, the movement makes any meaningful contact a challenge. As a result, pitchers are definitely working at adding a lot of movement to their pitches, not just their velocity. After all, if a pitch just stays in the same spot it makes it a bit easier to get your barrel on it.
+
+So, let's take a look at how much movement pitchers have been putting on their pitches.^[Throughout the blog post, I retrieve data on pitch characteristics and outcomes from [Statcast's API](https://baseballsavant.mlb.com/statcast_search). Throughout the blog post, I retrieve data on pitcher ERA and WAR with [Baseball Reference's API](https://www.baseball-reference.com).]
+
+```{python}
+#| label: fig-movement
+#| fig-cap: Pitch Movement
+px.scatter(
+  df, x = "pfx_x", y = "pfx_z", color = "pitch_type",
+  labels = dict(pfx_x = "Horizontal Movement (in feet)", pfx_z = "Vertical Movement (in feet)", pitch_type = "Pitch Type")
+  )
+```
+
+Some pitches have an absolute horizontal or vertical movement of 2 feet in some cases. What this means is that a pitch can be released from a pitcher's hand and will end up 2 feet higher/lower more to the right/left than it started once it reaches the catcher's glove. [Insert some expletive here].
+
+There are a couple things to contend with here. First, some pitches are necessarily going to produce a lot of movement, that is the nature of the pitch. So let's simplify this a bit and think about the major categories of pitches. The first type are breaking balls. Breaking balls include the Curveball, Slider, Slurve, and Screwball. The second type are our fast balls and these include the Four-seam, Two-seam, Cutter, Splitter, and Forkball. The third major category is our off speed pitches and these include the Changeup, Palmball, Circle Changeup. Also, just because you can throw a pitch with a lot of movement, it does not indicate that you are placing it well (or have any control of where you place it. I am looking at you Knuckleball). Now, let's see what the distribution is for these general categories of pitches that were called as either strikes or put in play (which indicates that unless the batter is Mookie Betts working on his golf game that day or are in a game with your main opponent being Angel Hernandez, these are likely pretty reasonably placed and in-control pitches).
+
+```{python}
+#| label: fig-movement-improved
+#| fig-cap: Movement of pitches (adjusted)
+df_movement = df.with_columns(
+  abs_movement_x = pl.col("pfx_x").abs(),
+  abs_movement_y = pl.col("pfx_z").abs()
+).with_columns(
+  abs_movement = pl.concat_list(['abs_movement_x', 'abs_movement_y']).list.mean()
+)
+
+df_movement_improved = df_movement.with_columns(
+    pl.when(
+      (pl.col("pitch_type") == "FF") | (pl.col("pitch_type") == "SI") | (pl.col("pitch_type") == "FC") | (pl.col("pitch_type") == "FS") | (pl.col("pitch_type") == "FO")
+    ).then(
+      pl.lit("Fastball")
+    ).when(
+      (pl.col("pitch_type") == "CU") | (pl.col("pitch_type") == "SL") | (pl.col("pitch_type") == "ST") | (pl.col("pitch_type") == "SV") | (pl.col("pitch_type") == "KC") | (pl.col("pitch_type") == "SC")
+    ).then(
+      pl.lit("Breaking Ball")
+    ).when(
+      (pl.col("pitch_type") == "KN") | (pl.col("pitch_type") == "CH")
+    ).then(
+      pl.lit("Off-Speed")
+    ).alias(
+      "pitch_category"
+    )
+).filter(
+  (pl.col("type") == "X") | (pl.col("type") == "S")
+)
+
+df_movement_improved_agg = df_movement_improved.group_by(["pitcher", "player_name", "pitch_category"]).agg(pl.col("abs_movement").mean())
+
+px.histogram(
+  df_movement_improved_agg, x = "abs_movement", color = "pitch_category"
+)
+```
+
+```{python}
+#| label: absolute-movement-avgs
+#| output: asis
+
+df_avg = df_movement_improved_agg.group_by("pitch_category").agg(pl.col("abs_movement").mean())
+df_std = df_movement_improved_agg.group_by("pitch_category").agg(pl.col("abs_movement").std())
+
+print(
+  "What we see is that an average Fastball has an absolute movement of {:.2f} ".format(df_avg.filter(pl.col("pitch_category") == "Fastball").item(0,1)) + "(Std.Dev. = {:.2f}".format(df_std.filter(pl.col("pitch_category") == "Fastball").item(0,1)) + "). The average off-speed pitch has an absolute movement of {:.2f} ".format(df_avg.filter(pl.col("pitch_category") == "Off-Speed").item(0,1)) + "(Std.Dev. = {:.2f}".format(df_std.filter(pl.col("pitch_category") == "Off-Speed").item(0,1)) + "). And the average breaking ball has an absolute movement of {:.2f} ".format(df_avg.filter(pl.col("pitch_category") == "Breaking Ball").item(0,1)) + "(Std.Dev = {:.2f}".format(df_std.filter(pl.col("pitch_category") == "Breaking Ball").item(0,1)) + ")."
+)
+```
+
+It is important to note that these calculations are obscuring some information here -- thus breaking balls not moving significantly, though they are known for their movement. This is because vertical versus horizontal movement is quite a bit more constrained and so breaking balls tend to move less in absolute terms as they tend to have most of [their movement show up as vertical movement](https://www.baseball-reference.com/bullpen/Breaking_ball). So these averages are a feature of the axis by which we see most of the movement for a pitch. It still tells us something quite interesting, though. While we do see in the original figure that pitches can move up to 2-feet in absolute movement, the average pitch definitely does not move much. Even more true, the standard deviations are quite small which indicates that these pitches with upwards of 2 feet of movement are quite unique.
+
+Let's see which pitchers are producing the nastiest movement on their pitches.
+
+Among the top five pitchers for most absolute movement on their fastballs, the podium is:
+
+```{python}
+#| label: fastball-podium
+dict_most_movement = df_movement_improved_agg.partition_by("pitch_category", as_dict = True)
+
+dict_most_movement.get("Fastball").top_k(5, by = "abs_movement")
+```
+
+For breaking balls:
+
+```{python}
+#| label: breaking-ball-podium
+dict_most_movement.get("Breaking Ball").top_k(5, by = "abs_movement")
+```
+
+And finally for off-speed pitches:
+
+```{python}
+#| label: off-speed-podium
+dict_most_movement.get("Off-Speed").top_k(5, by = "abs_movement")
+```
+
+Let's take a look at how well these pitchers are able to keep runs from crossing the plate.
+
+```{python}
+#| label: setting-up-podium-with-era
+pdf_era = pb.pitching_stats_bref(2023)
+
+df_era = pl.from_pandas(pdf_era)
+
+df_era = df_era.cast({"mlbID": pl.Int64})
+
+df_breaking, df_fastball, df_offspeed, __ = [ value.join(df_era, how = "inner", left_on = "pitcher", right_on = "mlbID", validate = "m:1").top_k(5, by = "abs_movement").select(pl.col("player_name", "pitch_category", "abs_movement", "ERA")) for value in dict_most_movement.values() ]
+```
+
+Among those with the most average absolute movement for their fastballs, these are their ERA's.
+
+```{python}
+#| label: fastball-podium-era
+print(df_fastball)
+```
+
+For breaking balls:
+
+```{python}
+#| label: breaking-podium-era
+print(df_breaking)
+```
+
+And for off-speed:
+
+```{python}
+#| label: offspeed-podium-era
+print(df_offspeed)
+```
+
+It appears that there is a bit of a mixed bag here. There are some quite respectable ERAs that are below 4 on these lists while there is Adam Wainright with an ERA of 7.4! Now, one thing that is pretty apparent is that a lot of movement does not necessarily mean that it is **controlled movement** some of these pitchers with significant movement can be having some serious problems with reigning it in. So, we need something a bit more systematic.
+
+Let's start off with the correlations between the average absolute movement for a pitcher and their ability to make it difficult for a batter to make contact.
+
+Now, batters have to have about [400ms to detect, process, and send a decision about whether to swing or not to their muscles](https://projects.seattletimes.com/2017/mariners-preview/science/). This leaves a span of about 100 ms to actually make the decision to swing or not to a batter. Often times, this happens as the pitcher is releasing the ball. So, if the ball has moved about a foot or more since you first detected and made a decision about whether to move your bat and where to place it, you are going to look pretty foolish (not) swinging at that.
+
+Does this movement actually predict weaker contact? Let's see.
+
+We can look at the classification of those that are actually hit. As these are balls actually hit and not swung-on-and-missed, this is an over-representation of a batter's ability to make something out of these pitches.
+
+```{python}
+#| label: fig-contact
+#| fig-cap: Quality of contact based on absolute movement
+px.scatter(
+  df_movement_improved, x = "abs_movement", y = "launch_speed_angle", color = "pitch_category"
+)
+```
+
+```{python}
+#| label: correlation-of-contact-and-movement
+#| output: asis
+print(
+  "What we can see here is that the correlation (r = {:.2f}".format(df_movement_improved.select(pl.corr("abs_movement", "launch_speed_angle")).item(0,0)) + ") between absolute movement and Statcasts' classifications of the launch speed angle doesn't really seem to support what my intuition."
+)
+```
+
+The correlation is small and it is positive. What this means is that the strikes and in-ball hits with lots of movement do not lead to weaker contact on average for a batter. In fact, if anything, the strength of the contact is a little bit better; but still, this relationship is quite small. To try to rationalize things is that stronger contact doesn't always mean that the pitcher is in trouble, however. Pop-ups can certainly be produced from lots of movement [due to backspin on the ball](https://blogs.fangraphs.com/on-rotation-part-2-the-effects-of-spin-on-pitch-outcomes/) and these often produce outs.
+
+So, let's look to see whether this movement helps limit the number of runs that come across plate among all of the pitchers and not just those that have thrown the highest average movement.
+
+```{python}
+#| label: fig-era-and-absolute-movement
+#| fig-cap: Absolute Movement and ERA
+pdf_era = pb.pitching_stats_bref(2023)
+
+df_era = pl.from_pandas(pdf_era)
+
+df_era = df_era.cast({"mlbID": pl.Int64})
+
+df_w_era = df_movement_improved.join(df_era, how = "inner", left_on = "pitcher", right_on = "mlbID", validate = "m:1")
+
+px.scatter(
+  df_w_era, x = "abs_movement", y = "ERA", color = "pitch_category"
+)
+```
+
+```{python}
+#| label: corr-era-and-absolute-movement
+#| output: asis
+
+print(
+  "The plot helps us visualize the correlation (r = {:.2f}".format(df_w_era.select(pl.corr("abs_movement", "ERA")).item(0,0)) + ") between the average absolute movement that pitchers were throwing in 2023 and their ERA."
+)
+```
+
+What this reflects is that the more absolute movement a pitcher has, we should expect for them to have a lower ERA relative to those with less absolute movement. This relationship is still quite small, so one should be a bit cautious interpreting this.
+
+However, [ERA is rightfully a highly criticized metric](https://www.mlb.com/glossary/standard-stats/earned-run-average#) of a pitcher's ability to keep points off the board. We can also look at their capacity to produce wins relative to them not playing. So, we will look at the correlation between movement and WAR over the course of the season.
+
+```{python}
+#| label: fig-war-and-absolute-movement
+#| fig-cap: Absolute Movement and WAR
+pdf_war = pb.bwar_pitch()
+
+df_war = pl.from_pandas(pdf_war).filter(pl.col("year_ID") == 2023).group_by("player_ID").agg(pl.col("WAR").mean())
+
+df_w_war = df_movement_improved.join(df_war, how = "left", left_on = "key_bbref", right_on = "player_ID", validate = "m:1")
+
+px.scatter(
+  df_w_war, x = "abs_movement", y = "WAR", color = "pitch_category"
+)
+```
+
+```{python}
+#| label: corr-absolute-movement-and-war
+#| output: asis
+
+print(
+  "The correlation between absolute movement and a pitcher's WAR is {:.2f}".format(df_w_war.select(pl.corr("abs_movement", "WAR")).item(0,0)) + "."
+)
+```
+
+We see that there is a super small, yet positive correlation between absolute movement and WAR. What this means is that pitchers who have more absolute movement on their pitches tend to have a higher WAR. In other words, pitchers with more absolute movement to their pitches tend to be more valuable to their team than those with less absolute movement; but the relationship is quite small. The degree to which this correlation is small makes sense. WAR is a quite complicated metric and a lot of features go into it, so without a more rigorous analysis breaking down the different components to WAR, I'll likely be coming up with a quite attenuated correlation anyhow.
+
+So, what does this tell us? While the analyses here are quite simple and this likely is obscuring some stuff, it still demonstrates that there is *some* value to a team with pitchers that can produce strikes that have lots of movement to them. This is not entirely surprising I think to most followers of baseball, but it is a good sanity check. For the post season, batters should be ready for a tough day at the plate if they are facing a pitcher who typically produces a lot of movement because you might be facing them on a day where they are locked in and are in control of it.
