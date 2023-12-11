@@ -1,4 +1,4 @@
-<h4 align="center">Source code for <a href="https://blog.damoncroberts.com">Damon's Sports Analytics Blog</a></h4>
+<h4 align="center">Source code for <a href="https://blog.damoncroberts.com">Damon's Blog</a></h4>
 <p align="center">
     <a href="https://github.com/DamonCharlesRoberts/blog/commits/main">
     <img src="https://img.shields.io/github/last-commit/DamonCharlesRoberts/blog.svg?style=flat-square&logo=github&logoColor=white"
