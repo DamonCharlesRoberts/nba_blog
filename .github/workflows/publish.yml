@@ -23,6 +23,8 @@ jobs:
         run: pip install jupyter
       - name: Install Python dependencies
         run: pip install -r requirements.txt
+      - name: Update linux packages
+        run: sudo apt-get update
       - name: Install cURL Headers
         run: sudo apt-get install libcurl4-openssl-dev
       - name: Install R
