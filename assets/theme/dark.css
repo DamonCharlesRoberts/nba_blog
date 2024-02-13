@@ -152,13 +152,6 @@ $btn-close-color:            $body-color !default;
 $btn-close-opacity:          .4 !default;
 $btn-close-hover-opacity:    1 !default;
 
-// Code
-
-$pre-color:                         inherit !default;
-$code-color:                        $white;
-$btn-code-copy-color-active:        $gray;
-$btn-code-copy-color:               $white;
-
 // Callout
 
 $callout-color-note:      $white;

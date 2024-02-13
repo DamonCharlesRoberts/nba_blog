@@ -2,11 +2,11 @@
 title: "Blog"
 listing:
   contents: posts
-  #sort: "date desc"
-  #sort-ui: false
+  sort: "date desc"
+  sort-ui: false
   type: table
   categories: unnumbered
-  #filter-ui: false
+  filter-ui: false
   fields: [title, date]
 page-layout: full
 title-block-banner: true
