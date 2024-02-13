@@ -1,8 +1,8 @@
 ---
 title: "Does pitch movement matter for winning?"
-date: 10/4/2023
+date: "10/4/2023"
 categories:
-    - baseball
+  - baseball
 draft: false
 format:
   html:

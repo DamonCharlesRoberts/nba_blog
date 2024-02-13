@@ -4,16 +4,13 @@ date: 11/07/2022
 categories:
     - polling
 draft: false
-engine: knitr
+engine: rmarkdown
 bibliography: "assets/references.bib"
 execute:
     echo: false
     eval: true
 format:
-    html:
-        css: "assets/custom.scss"
-params:
-    style-file: "{{<meta format.html.css >}}"
+    html
 ---
 
 # Be careful about reading polls
