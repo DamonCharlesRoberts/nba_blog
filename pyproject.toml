@@ -6,7 +6,7 @@ authors = ["DamonCharlesRoberts <damon.charles.roberts@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.10"
 polars = "^0.20.7"
 pybaseball = "^2.2.7"
 plotly = "^5.18.0"

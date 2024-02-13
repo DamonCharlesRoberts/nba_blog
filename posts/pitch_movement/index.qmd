@@ -18,9 +18,9 @@ execute:
 #| label: setup-block
 
 # Import important libraries
-import pybaseball as pb
 import polars as pl
 import plotly.express as px
+import pybaseball as pb
 
 # enable caching of queries
 pb.cache.enable()
