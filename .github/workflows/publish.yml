@@ -15,8 +15,8 @@ jobs:
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
       - name: Install Python
-        uses: actions/setup-python@v4
-        with:
+        uses: actions/setup-python@v5
+        with:s
           python-version: '3.11'
           cache: 'pip'
       - name: Install jupyter
