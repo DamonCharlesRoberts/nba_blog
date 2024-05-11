@@ -41,8 +41,8 @@ $link-color:                $purple !default;
 // Fonts
 
 // stylelint-disable-next-line value-keyword-case
-$font-family-sans-serif:      "Space Mono", monospace !default; // Remove all sans-serif font fallbacks
-$font-family-monospace:      "Space Mono", monospace !default; // Define Fira Mono as the monospace font
+$font-family-sans-serif:      "Fira Mono", monospace !default; // Remove all sans-serif font fallbacks
+$font-family-monospace:      "Fira Mono", monospace !default; // Define Fira Mono as the monospace font
 $h1-font-size:                3rem !default;
 $h2-font-size:                2.5rem !default;
 $h3-font-size:                2rem !default;
@@ -192,7 +192,7 @@ a.button1:hover {
 
 // Variables
 
-$web-font-path: "https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" !default; // Update the web font path to include Fira Mono
+$web-font-path: "https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap" !default; // Update the web font path to include Fira Mono
 @if $web-font-path {
   @import url($web-font-path);
 }
