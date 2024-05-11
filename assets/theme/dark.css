@@ -7,25 +7,24 @@ $theme: "custom" !default;
 //
 
 $white:    #fff !default;
-$gray:     #282828 !default;
+$gray:     #44475A !default;
 $black:    #000 !default;
-
-$maroon:   #550000 !default;
+$purple:   #BD93F9 !default;
 
 // Body
 
-$body-bg:                   $gray !default;
+$body-bg:                   $black !default;
 $body-color:                $white !default;
 @function body-mix($weight) {
     @return mix($body-bg, $body-color, $weight);
 }
 
-$primary:       $gray !default;
+$primary:       $black !default;
 $secondary:     body-mix(85%) !default;
-$success:       $maroon !default;
-$info:          $maroon !default;
-$warning:       $maroon !default;
-$danger:        $maroon !default;
+$success:       $purple !default;
+$info:          $purple !default;
+$warning:       $purple !default;
+$danger:        $purple !default;
 // This is inconsistent with Bootstrap semantics. That is, $dark
 // should actually be a light color in a dark mode setting, :shrug:
 // https://github.com/thomaspark/bootswatch/issues/989
@@ -36,12 +35,12 @@ $min-contrast-ratio:   1.9 !default;
 
 // Links
 
-$link-color:                $white !default;
+$link-color:                $purple !default;
 
 // Fonts
 
 // stylelint-disable-next-line value-keyword-case
-$font-family-sans-serif:      Lato, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !default;
+$font-family-monospace:      "Fira Mono", monospace !default; // Define Fira Mono as the monospace font
 $h1-font-size:                3rem !default;
 $h2-font-size:                2.5rem !default;
 $h3-font-size:                2rem !default;
@@ -72,8 +71,8 @@ $dropdown-bg:                       $body-bg !default;
 $dropdown-border-color:             body-mix(85%) !default;
 $dropdown-divider-bg:               body-mix(85%) !default;
 $dropdown-link-color:               $body-color !default;
-$dropdown-link-hover-color:         $body-color !default;
-$dropdown-link-hover-bg:            $maroon !default;
+$dropdown-link-hover-color:         $purple !default;
+$dropdown-link-hover-bg:            $purple !default;
 
 // Navs
 
@@ -97,7 +96,7 @@ $pagination-bg:                     $gray !default;
 $pagination-border-width:           0 !default;
 $pagination-border-color:           transparent !default;
 $pagination-hover-color:            $body-color !default;
-$pagination-hover-bg:               $gray !default;
+$pagination-hover-bg:               $purple !default;
 $pagination-hover-border-color:     transparent !default;
 $pagination-active-bg:              $pagination-hover-bg !default;
 $pagination-active-border-color:    transparent !default;
@@ -158,7 +157,6 @@ $pre-color:                         inherit !default;
 $code-color:                        $white;
 $btn-code-copy-color-active:        $gray;
 $btn-code-copy-color:               $white;
-$code-bg:                           $maroon;
 
 // Callout
 
@@ -168,13 +166,31 @@ $callout-color-caution:   $white;
 $callout-color-warning:   $white;
 $callout-color-important: $white;
 
+// Contact Buttons
+a.button1 {
+  display:inline-block;
+  padding:0.35em 1.2em;
+  border: 0.1em solid $body-color;
+  margin:0 0.3em 0.3em 0;
+  border-radius:0.12em;
+  box-sizing: border-box;
+  text-decoration: none;
+  color: $body-color;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+a.button1:hover {
+  color: $gray;
+  background-color: $purple;
+}
 
 /*-- scss:rules --*/
 
 
 // Variables
 
-$web-font-path: "https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&display=swap" !default;
+$web-font-path: "https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap" !default; // Update the web font path to include Fira Mono
 @if $web-font-path {
   @import url($web-font-path);
 }
