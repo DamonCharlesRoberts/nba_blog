@@ -40,8 +40,8 @@ $link-color:                $purple !default;
 // Fonts
 
 // stylelint-disable-next-line value-keyword-case
-$font-family-sans-serif:      "Space Mono" !default; // Remove all sans-serif font fallbacks
-$font-family-monospace:      "Space Mono" !default; // Define Fira Mono as the monospace font
+$font-family-sans-serif:      "Fira Mono" !default; // Remove all sans-serif font fallbacks
+$font-family-monospace:      "Fira Mono" !default; // Define Fira Mono as the monospace font
 $h1-font-size:                3rem !default;
 $h2-font-size:                2.5rem !default;
 $h3-font-size:                2rem !default;
@@ -73,7 +73,7 @@ $dropdown-border-color:             body-mix(85%) !default;
 $dropdown-divider-bg:               body-mix(85%) !default;
 $dropdown-link-color:               $body-color !default;
 $dropdown-link-hover-color:         $purple !default;
-$dropdown-link-hover-bg:            $purple !default;
+$dropdown-link-hover-bg:            $gray !default;
 
 // Navs
 
@@ -191,7 +191,7 @@ a.button1:hover {
 
 // Variables
 
-$web-font-path: "https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" !default; // Update the web font path to include Fira Mono
+$web-font-path: "https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap" !default; // Update the web font path to include Fira Mono
 @if $web-font-path {
   @import url($web-font-path);
 }
