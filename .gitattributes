@@ -1,0 +1,10 @@
+# Ensure Quarto documents are recognized as Julia
+*.qmd linguist-language=Python
+
+# Mark output files as generated, so they don't affect language statistics
+*.html linguist-generated=true
+*.md linguist-generated=true
+_book/* linguist-generated=true
+.quarto/* linguist-generated=true
+_freeze/* linguist-generated=true
+*.yml linguist-generated=true
