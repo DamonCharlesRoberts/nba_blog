@@ -14,3 +14,4 @@ execute:
 Here are my attempts at the puzzles for Advent of Code 2024!
 
 [Day 1 solution](https://github.com/DamonCharlesRoberts/advent_2024/blob/main/src/day_1.py)
+[Day 2 solution](https://github.com/DamonCharlesRoberts/advent_2024/blob/main/src/day_2.py)
